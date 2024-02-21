@@ -1,94 +1,86 @@
-# Introduction 
-**本人学习Netty后决定自己写1个基于Netty、Zookeeper、Spring的轻量级RPC框架，收获颇丰，不过本人才疏学浅，难免有所疏漏，若有批评和建议请发到邮箱1035090753@qq.com**
-
+# Introduction
+Introduction
+I learned Netty decided to write their own 1 based on Netty, Zookeeper, Spring's lightweight RPC framework, gained a lot, but I'm shallow, inevitably there are omissions, if there are criticisms and suggestions, please send to the mail wgh1320716615@gmail.com.
 
 # Features
-- **支持长连接**
-- **支持异步调用**
-- **支持心跳检测**
-- **支持JSON序列化**
-- **接近零配置，基于注解实现调用**
-- **基于Zookeeper实现服务注册中心**
-- **支持客户端连接动态管理**
-- **支持客户端服务监听、发现功能**
-- **支持服务端服务注册功能**
-- **基于Netty4.X版本实现**
+* **Support for long connections**
+* **Support for asynchronous calls**
+* **Heartbeat detection**
+* **Support for JSON serialization**
+* **Nearly zero configuration, annotation-based call implementation**
+* **Service registry based on Zookeeper**
+* **Support for dynamic management of client connections**
+* **Support for client-side service listening and discovery**
+* **Support for server-side service registration**
+* **Based on Netty4.X version implementation**
 
 # Quick Start
-### 服务端开发
-- **在服务端的Service下添加你自己的Service,并加上@Service注解**
-	<pre>
-	@Service
-	public class TestService {
-		public void test(User user){
-			System.out.println("调用了TestService.test");
-		}
-	}
-	</pre>
-
-- **生成1个服务接口并生成1个实现该接口的类**
-	###### 接口如下
-	<pre>
-	public interface TestRemote {
-		public Response testUser(User user);  
-	}
-	</pre>
-	###### 实现类如下，为你的实现类添加@Remote注解，该类是你真正调用服务的地方，你可以生成自己想返回给客户端的任何形式的Response
-
-	<pre> 
-	@Remote
-	public class TestRemoteImpl implements TestRemote{
-		@Resource
-		private TestService service;
-		public Response testUser(User user){
-			service.test(user);
-			Response response = ResponseUtil.createSuccessResponse(user);
-			return response;
-		}
-	}	
-	</pre>
-
-
-### 客户端开发
-- **在客户端生成一个接口，该接口为你要调用的接口**
-	<pre>
-	public interface TestRemote {
-		public Response testUser(User user);
-	}
-	</pre>
-
-### 使用
-- **在你要调用的地方生成接口形式的属性，为该属性添加@RemoteInvoke注解**
-	<pre>
-	@RunWith(SpringJUnit4ClassRunner.class)
-	@ContextConfiguration(classes=RemoteInvokeTest.class)
-	@ComponentScan("\\")
-	public class RemoteInvokeTest {
-		@RemoteInvoke
-		public static TestRemote userremote;
-		public static User user;
-		@Test
-		public void testSaveUser(){
-			User user = new User();
-			user.setId(1000);
-			user.setName("张三");
-			userremote.testUser(user);
-		}
-	}	
-	</pre>
-
-### 结果
-- **一万次调用结果**
-![Markdown](https://s1.ax1x.com/2018/07/06/PZMMBF.png)
-
-- **十万次调用结果**
-![Markdown](https://s1.ax1x.com/2018/07/06/PZM3N9.png)
-
-- **一百万次调用结果**
-![Markdown](https://s1.ax1x.com/2018/07/06/PZMY1x.png)
-
-
+## server-side development
+* **Add your own Service under Service on the server side, and add the @Service annotation.**
+```Java
+  @Service
+  public class TestService {
+  	public void test(User user){
+  		System.out.println("调用了TestService.test");
+  	}
+  }
+```
+* **Generate a service interface and generate a class that implements it**
+The interfaces are as follows
+```Java
+  public interface TestRemote {
+  	public Response testUser(User user);  
+  }
+```
+The implementation class is as follows, add the @Remote annotation to your implementation class, this class is where you actually call the service, you can generate any kind of Response you want to return to the client
+```Java
+  @Remote
+  public class TestRemoteImpl implements TestRemote{
+  	@Resource
+  	private TestService service;
+  	public Response testUser(User user){
+  		service.test(user);
+  		Response response = ResponseUtil.createSuccessResponse(user);
+  		return response;
+  	}
+  }
+```
+## Client development
+* **Generate an interface on the client side that is the interface you want to call**
+```Java
+  public interface TestRemote {
+  	public Response testUser(User user);
+  }
+```
+## utilization
+* **Generate a property in the form of an interface where you want to call it, add the @RemoteInvoke annotation to the property**
+```Java
+  @RunWith(SpringJUnit4ClassRunner.class)
+  @ContextConfiguration(classes=RemoteInvokeTest.class)
+  @ComponentScan("\\")
+  public class RemoteInvokeTest {
+  	@RemoteInvoke
+  	public static TestRemote userremote;
+  	public static User user;
+  	@Test
+  	public void testSaveUser(){
+  		User user = new User();
+  		user.setId(1000);
+  		user.setName("张三");
+  		userremote.testUser(user);
+  	}
+  }	
+  ```
+## end
+* **Result of 10,000 calls**
+![](https://camo.githubusercontent.com/57188c6ad1c73358c3e77a0d1206b8de58ad694d6760bcf97325c892131fb0eb/68747470733a2f2f73312e617831782e636f6d2f323031382f30372f30362f505a4d4d42462e706e67)
+* **Results of 100,000 calls**
+![](https://camo.githubusercontent.com/3d4e97748ea95bb1127458d3430479f004bb6dd67a635f669fe6ba30120ed1e3/68747470733a2f2f73312e617831782e636f6d2f323031382f30372f30362f505a4d334e392e706e67)
+* **One million calls result**
+![](https://camo.githubusercontent.com/20529dea30d596d48dbfbea0f1d966f96c60bc4be654f019e2df76efb6f8a68b/68747470733a2f2f73312e617831782e636f6d2f323031382f30372f30362f505a4d5931782e706e67)
 
 # Overview
+![](https://camo.githubusercontent.com/0e1f0c52612225fdfe401402af4dace5aa35bac758f0da5d7c7d5f727be58c76/68747470733a2f2f73312e617831782e636f6d2f323031382f30372f30362f505a4b3353502e706e67)
 
-![Markdown](https://s1.ax1x.com/2018/07/06/PZK3SP.png)
+
+
